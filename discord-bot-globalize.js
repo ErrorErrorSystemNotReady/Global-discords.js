@@ -1,4 +1,4 @@
-const { Client, GatewayIntentBits, Partials} = require("discord.js");
+const { Client, GatewayIntentBits, Partials } = require("discord.js");
 const { readdirSync } = require("fs")
 const client = new Client({
   intents: [
@@ -9,7 +9,8 @@ const client = new Client({
     GatewayIntentBits.DirectMessages,
     GatewayIntentBits.DirectMessageReactions,
     GatewayIntentBits.DirectMessageTyping,
-    GatewayIntentBits.MessageContent],
+    GatewayIntentBits.MessageContent
+  ],
   shards: "auto",
   partials: [
     Partials.Message,
@@ -18,27 +19,28 @@ const client = new Client({
     Partials.Reaction,
     Partials.GuildScheduledEvent,
     Partials.User,
-    Partials.ThreadMember]
+    Partials.ThreadMember
+  ]
 });
 
-const token = process.env['token']
-
-const sourceChannelId = '1085571725875499018';
-
-const targetChannelIds = ["1085571854032445470", "1085571889516269599"];
-
-client.on('ready', () => {
+client.on("ready", () => {
   console.log(`Logged in as ${client.user.tag}!`);
 });
 
-client.on('messageCreate', (message) => {
-  if (message.channel.id === sourceChannelId) {
-    targetChannelIds.forEach((channelId) => {
+client.on("messageCreate", async (message) => {
+  if (message.channel.id === "SOURCE_CHANNEL_ID") {
+    const targetChannelIds = ["TARGET_CHANNEL_ID_1", "TARGET_CHANNEL_ID_2"];
+    for (const channelId of targetChannelIds) {
       const channel = client.channels.cache.get(channelId);
-      if (channel) {
-        channel.send(`${message.content}`);
+      if (!channel) continue;
+      try {
+        await channel.send(`${message.content}`);
+      } catch (err) {
+        console.error(err);
       }
-    });
+    }
   }
 });
-client.login(token);
+
+client.on("error", console.error);
+client.login(process.env.token);
